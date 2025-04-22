@@ -42,7 +42,7 @@
 
                     <div class="form-group">
                         <label for="report-content">Report Content</label>
-                        <textarea id="report-content" class="form-control editor-container" rows="10" placeholder="Enter your report content here"></textarea>
+                        <div id="report-editor" class="form-control editor-container" contenteditable="true" placeholder="Enter your report content here"></div>
                     </div>
 
                     <div class="form-group">
@@ -91,8 +91,344 @@
                 </div>
             </div>
         </div>
+
+        <div class="notification" id="notification"></div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const API_BASE_URL = 'https://man-m681.onrender.com';
+    let selectedFiles = [];
+    
+    // DOM Elements
+    const programSelect = document.getElementById('program-select');
+    const reportTitle = document.getElementById('report-title');
+    const reportEditor = document.getElementById('report-editor');
+    const fileInput = document.getElementById('report-attachments');
+    const filePreview = document.getElementById('file-preview');
+    const saveDraftBtn = document.getElementById('save-draft-btn');
+    const submitReportBtn = document.getElementById('submit-report-btn');
+    const reportsList = document.getElementById('reports-list');
+    const successModal = document.getElementById('success-modal');
+    const closeModalButtons = document.querySelectorAll('.close-modal');
+    const notification = document.getElementById('notification');
+    
+    // Initialize the app
+    init();
+    
+    function init() {
+        // Load programs/activities
+        loadPrograms();
+        
+        // Load recent reports
+        loadRecentReports();
+        
+        // Set up event listeners
+        setupEventListeners();
+    }
+    
+    function setupEventListeners() {
+        // File upload handling
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        // Drag and drop file handling
+        const uploadLabel = document.querySelector('.file-upload-label');
+        uploadLabel.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.add('dragover');
+        });
+        
+        uploadLabel.addEventListener('dragleave', () => {
+            uploadLabel.classList.remove('dragover');
+        });
+        
+        uploadLabel.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadLabel.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect({ target: fileInput });
+            }
+        });
+        
+        // Save draft button
+        saveDraftBtn.addEventListener('click', saveDraft);
+        
+        // Submit report button
+        submitReportBtn.addEventListener('click', submitReport);
+        
+        // Close modal buttons
+        closeModalButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                successModal.classList.remove('active');
+            });
+        });
+        
+        // Editor placeholder
+        reportEditor.addEventListener('focus', function() {
+            if (this.innerHTML === 'Write your report here...') {
+                this.innerHTML = '';
+            }
+        });
+        
+        reportEditor.addEventListener('blur', function() {
+            if (this.innerHTML === '' || this.innerHTML === '<br>') {
+                this.innerHTML = 'Write your report here...';
+            }
+        });
+    }
+    
+    async function loadPrograms() {
+        try {
+            showNotification('Loading activities...', 'info');
+            
+            // Fetch activities from the API
+            const response = await fetch(`${API_BASE_URL}/activities/`);
+            if (!response.ok) throw new Error('Failed to fetch activities');
+            
+            const activities = await response.json();
+            
+            // Clear existing options
+            programSelect.innerHTML = '<option value="" disabled selected>Select an activity</option>';
+            
+            // Add activities to the select dropdown
+            activities.forEach(activity => {
+                const option = document.createElement('option');
+                option.value = activity.id;
+                option.textContent = `${activity.name} (${activity.project_name})`;
+                programSelect.appendChild(option);
+            });
+            
+            showNotification('Activities loaded successfully', 'success');
+        } catch (error) {
+            console.error('Error loading programs:', error);
+            showNotification('Failed to load programs. Please try again later.', 'error');
+        }
+    }
+    
+    async function loadRecentReports() {
+        try {
+            showNotification('Loading recent reports...', 'info');
+            
+            const response = await fetch(`${API_BASE_URL}/reports/`);
+            if (!response.ok) throw new Error('Failed to fetch reports');
+            
+            const data = await response.json();
+            const reports = data.reports || [];
+            
+            // Clear existing reports
+            reportsList.innerHTML = '';
+            
+            if (reports.length === 0) {
+                reportsList.innerHTML = '<p class="no-reports">No reports found</p>';
+                return;
+            }
+            
+            // Add reports to the list
+            reports.forEach(report => {
+                const reportItem = document.createElement('div');
+                reportItem.className = 'report-item';
+                reportItem.innerHTML = `
+                    <div class="report-title">${report.title}</div>
+                    <div class="report-meta">
+                        <span>${report.activity_name}</span>
+                        <span>${formatDate(report.created_at)}</span>
+                    </div>
+                    <div class="report-status ${report.status}">${report.status}</div>
+                `;
+                reportsList.appendChild(reportItem);
+            });
+            
+            showNotification('Recent reports loaded successfully', 'success');
+        } catch (error) {
+            console.error('Error loading recent reports:', error);
+            showNotification('Failed to load recent reports', 'error');
+        }
+    }
+    
+    function handleFileSelect(event) {
+        const files = event.target.files;
+        selectedFiles = Array.from(files);
+        
+        // Clear previous previews
+        filePreview.innerHTML = '';
+        
+        if (selectedFiles.length === 0) {
+            filePreview.innerHTML = '<p class="no-files">No files selected</p>';
+            return;
+        }
+        
+        // Display file previews
+        selectedFiles.forEach((file, index) => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            
+            // Get file icon based on type
+            let fileIcon = 'fa-file-alt';
+            if (file.type.startsWith('image/')) fileIcon = 'fa-file-image';
+            else if (file.type.startsWith('video/')) fileIcon = 'fa-file-video';
+            else if (file.type.startsWith('audio/')) fileIcon = 'fa-file-audio';
+            else if (file.type === 'application/pdf') fileIcon = 'fa-file-pdf';
+            else if (file.type === 'application/msword' || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') fileIcon = 'fa-file-word';
+            else if (file.type === 'application/vnd.ms-excel' || file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') fileIcon = 'fa-file-excel';
+            
+            fileItem.innerHTML = `
+                <i class="fas ${fileIcon}"></i>
+                <span class="file-name">${file.name}</span>
+                <span class="file-size">(${formatFileSize(file.size)})</span>
+                <span class="remove-file" data-index="${index}">&times;</span>
+            `;
+            filePreview.appendChild(fileItem);
+        });
+        
+        // Add event listeners to remove buttons
+        document.querySelectorAll('.remove-file').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const index = parseInt(e.target.getAttribute('data-index'));
+                selectedFiles.splice(index, 1);
+                
+                // Create a new DataTransfer object to update the file input
+                const dataTransfer = new DataTransfer();
+                selectedFiles.forEach(file => dataTransfer.items.add(file));
+                fileInput.files = dataTransfer.files;
+                
+                handleFileSelect({ target: fileInput });
+            });
+        });
+    }
+    
+    function saveDraft() {
+        const activityId = programSelect.value;
+        const title = reportTitle.value.trim();
+        const content = reportEditor.innerHTML;
+        
+        if (!activityId) {
+            showNotification('Please select an activity', 'error');
+            programSelect.focus();
+            return;
+        }
+        
+        if (!title) {
+            showNotification('Please enter a report title', 'error');
+            reportTitle.focus();
+            return;
+        }
+        
+        // In a real app, you would save to your backend
+        console.log('Saving draft:', { activityId, title, content, files: selectedFiles });
+        showNotification('Draft saved successfully', 'success');
+    }
+    
+    async function submitReport() {
+        const activityId = programSelect.value;
+        const title = reportTitle.value.trim();
+        const content = reportEditor.innerHTML;
+        
+        if (!activityId) {
+            showNotification('Please select an activity', 'error');
+            programSelect.focus();
+            return;
+        }
+        
+        if (!title) {
+            showNotification('Please enter a report title', 'error');
+            reportTitle.focus();
+            return;
+        }
+        
+        if (!content || content === '<br>' || content === '<div><br></div>' || content === 'Write your report here...') {
+            showNotification('Please enter report content', 'error');
+            reportEditor.focus();
+            return;
+        }
+        
+        try {
+            showNotification('Submitting report...', 'info');
+            
+            // Create form data for file uploads
+            const formData = new FormData();
+            formData.append('activity_id', activityId);
+            formData.append('title', title);
+            formData.append('content', content);
+            
+            // Add files if any
+            selectedFiles.forEach(file => {
+                formData.append('attachments', file);
+            });
+            
+            // Submit to the API
+            const response = await fetch(`${API_BASE_URL}/reports/`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Failed to submit report');
+            }
+            
+            const report = await response.json();
+            
+            // Show success message
+            showSuccessModal();
+            showNotification('Report submitted successfully', 'success');
+            
+            // Reset form
+            resetForm();
+            
+            // Reload recent reports
+            loadRecentReports();
+            
+        } catch (error) {
+            console.error('Error submitting report:', error);
+            showNotification(error.message || 'Failed to submit report. Please try again.', 'error');
+        }
+    }
+    
+    function resetForm() {
+        programSelect.value = '';
+        reportTitle.value = '';
+        reportEditor.innerHTML = 'Write your report here...';
+        filePreview.innerHTML = '';
+        selectedFiles = [];
+        fileInput.value = '';
+    }
+    
+    function showSuccessModal() {
+        successModal.classList.add('active');
+    }
+    
+    function showNotification(message, type) {
+        notification.textContent = message;
+        notification.className = `notification ${type}`;
+        notification.style.display = 'block';
+        
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 5000);
+    }
+    
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+    
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+});
+    </script>
 </body>
 </html>

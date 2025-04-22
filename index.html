@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RCDNET - Activity Reporting System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --info: #2980b9;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo img {
+            height: 40px;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .sidebar {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            height: fit-content;
+        }
+        
+        .nav-menu {
+            list-style: none;
+        }
+        
+        .nav-item {
+            margin-bottom: 10px;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            border-radius: 6px;
+            color: var(--dark);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .content-area {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        
+        select.form-control {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 15px center;
+            background-size: 15px;
+        }
+        
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .activity-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .activity-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .activity-card:hover {
+            border-color: var(--secondary);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .activity-card.selected {
+            border-color: var(--secondary);
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+        
+        .activity-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+        
+        .activity-project {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        
+        .activity-dates {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #95a5a6;
+        }
+        
+        .report-form {
+            display: none;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #ddd;
+            color: var(--dark);
+        }
+        
+        .btn-outline:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 6px;
+            color: white;
+            background-color: var(--success);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+        }
+        
+        .toast.error {
+            background-color: var(--accent);
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .activity-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <img src="https://via.placeholder.com/40" alt="RCDNET Logo">
+                <h1>RCDNET</h1>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">JS</div>
+                <span>John Smith</span>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="main-content">
+            <aside class="sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="#" class="nav-link active"><i class="fas fa-home"></i> Dashboard</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-tasks"></i> Activities</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-file-alt"></i> Reports</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-users"></i> Staff</a></li>
+                    <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-cog"></i> Settings</a></li>
+                </ul>
+            </aside>
+            
+            <main class="content-area">
+                <div class="page-header">
+                    <h2 class="page-title">Activity Report</h2>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title">Select Activity</h3>
+                    <div class="activity-selector" id="activitySelector">
+                        <!-- Activities will be loaded here -->
+                    </div>
+                </div>
+                
+                <div class="card report-form" id="reportForm">
+                    <h3 class="card-title">Activity Report Form</h3>
+                    <form id="reportSubmissionForm">
+                        <input type="hidden" id="activityId">
+                        
+                        <div class="form-group">
+                            <label for="reportTitle" class="form-label">Report Title</label>
+                            <input type="text" id="reportTitle" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reportDate" class="form-label">Date</label>
+                            <input type="date" id="reportDate" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reportContent" class="form-label">Report Content</label>
+                            <textarea id="reportContent" class="form-control" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reportChallenges" class="form-label">Challenges Encountered</label>
+                            <textarea id="reportChallenges" class="form-control"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reportRecommendations" class="form-label">Recommendations</label>
+                            <textarea id="reportRecommendations" class="form-control"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="reportAttachments" class="form-label">Attachments</label>
+                            <input type="file" id="reportAttachments" class="form-control" multiple>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" id="cancelReport">Cancel</button>
+                            <button type="submit" class="btn btn-primary" id="submitReport">
+                                <span id="submitText">Submit Report</span>
+                                <span id="submitSpinner" class="loading" style="display: none;"></span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const activitySelector = document.getElementById('activitySelector');
+            const reportForm = document.getElementById('reportForm');
+            const reportSubmissionForm = document.getElementById('reportSubmissionForm');
+            const cancelReportBtn = document.getElementById('cancelReport');
+            const submitReportBtn = document.getElementById('submitReport');
+            const submitText = document.getElementById('submitText');
+            const submitSpinner = document.getElementById('submitSpinner');
+            const toast = document.getElementById('toast');
+            
+            // Current selected activity
+            let selectedActivity = null;
+            
+            // Load activities from API
+            async function loadActivities() {
+                try {
+                    const response = await fetch('/activities/');
+                    if (!response.ok) throw new Error('Failed to load activities');
+                    
+                    const activities = await response.json();
+                    renderActivities(activities);
+                } catch (error) {
+                    showToast(error.message, 'error');
+                }
+            }
+            
+            // Render activities to the DOM
+            function renderActivities(activities) {
+                activitySelector.innerHTML = '';
+                
+                if (activities.length === 0) {
+                    activitySelector.innerHTML = '<p>No activities found</p>';
+                    return;
+                }
+                
+                activities.forEach(activity => {
+                    const activityCard = document.createElement('div');
+                    activityCard.className = 'activity-card';
+                    activityCard.innerHTML = `
+                        <div class="activity-name">${activity.name}</div>
+                        <div class="activity-project">Project: ${activity.project_name}</div>
+                        <div class="activity-dates">
+                            <span>Start: ${activity.start_date}</span>
+                            <span>End: ${activity.end_date}</span>
+                        </div>
+                    `;
+                    
+                    activityCard.addEventListener('click', () => selectActivity(activity));
+                    activitySelector.appendChild(activityCard);
+                });
+            }
+            
+            // Select an activity
+            function selectActivity(activity) {
+                // Remove selected class from all cards
+                document.querySelectorAll('.activity-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked card
+                event.currentTarget.classList.add('selected');
+                
+                // Set the selected activity
+                selectedActivity = activity;
+                
+                // Show the report form
+                reportForm.style.display = 'block';
+                
+                // Set the activity ID in the form
+                document.getElementById('activityId').value = activity.id;
+                
+                // Set default title
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('reportTitle').value = `Report for ${activity.name} - ${today}`;
+                document.getElementById('reportDate').value = today;
+                
+                // Scroll to form
+                reportForm.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            // Cancel report
+            cancelReportBtn.addEventListener('click', () => {
+                reportForm.style.display = 'none';
+                selectedActivity = null;
+                document.querySelectorAll('.activity-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+            });
+            
+            // Submit report
+            reportSubmissionForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!selectedActivity) {
+                    showToast('Please select an activity first', 'error');
+                    return;
+                }
+                
+                // Prepare form data
+                const formData = {
+                    activity_id: selectedActivity.id,
+                    title: document.getElementById('reportTitle').value,
+                    date: document.getElementById('reportDate').value,
+                    content: document.getElementById('reportContent').value,
+                    challenges: document.getElementById('reportChallenges').value,
+                    recommendations: document.getElementById('reportRecommendations').value,
+                    attachments: document.getElementById('reportAttachments').files
+                };
+                
+                // Validate form
+                if (!formData.title || !formData.date || !formData.content) {
+                    showToast('Please fill in all required fields', 'error');
+                    return;
+                }
+                
+                // Show loading state
+                submitText.textContent = 'Submitting...';
+                submitSpinner.style.display = 'inline-block';
+                submitReportBtn.disabled = true;
+                
+                try {
+                    // In a real app, you would send this to your backend API
+                    // For now, we'll simulate an API call
+                    await simulateApiCall(formData);
+                    
+                    // Show success message
+                    showToast('Report submitted successfully!');
+                    
+                    // Reset form
+                    reportSubmissionForm.reset();
+                    reportForm.style.display = 'none';
+                    selectedActivity = null;
+                    document.querySelectorAll('.activity-card').forEach(card => {
+                        card.classList.remove('selected');
+                    });
+                } catch (error) {
+                    showToast(error.message, 'error');
+                } finally {
+                    // Reset button state
+                    submitText.textContent = 'Submit Report';
+                    submitSpinner.style.display = 'none';
+                    submitReportBtn.disabled = false;
+                }
+            });
+            
+            // Simulate API call (replace with actual fetch to your backend)
+            function simulateApiCall(data) {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        // Simulate random success/failure
+                        const success = Math.random() > 0.2;
+                        if (success) {
+                            console.log('Report data:', data);
+                            resolve();
+                        } else {
+                            reject(new Error('Failed to submit report. Please try again.'));
+                        }
+                    }, 1500);
+                });
+            }
+            
+            // Show toast notification
+            function showToast(message, type = 'success') {
+                toast.textContent = message;
+                toast.className = 'toast';
+                toast.classList.add(type);
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Initialize the page
+            loadActivities();
+        });
+    </script>
+</body>
+</html>

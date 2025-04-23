@@ -803,6 +803,7 @@ document.addEventListener('DOMContentLoaded', function() {
             reports.forEach(report => {
                 const reportItem = document.createElement('div');
                 reportItem.className = 'report-item';
+                reportItem.dataset.reportId = report.id; 
                 
                 // Find employee name
                 const employee = employees.find(e => e.id === report.submitted_by);
@@ -817,6 +818,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="report-submitter">Submitted by: ${employeeName}</div>
                     <div class="report-status ${report.status}">${report.status}</div>
                 `;
+                reportItem.addEventListener('click', () => viewReportDetails(report.id));
                 reportsList.appendChild(reportItem);
             });
             
@@ -1026,6 +1028,27 @@ document.addEventListener('DOMContentLoaded', function() {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 });
+        async function viewReportDetails(reportId) {
+    try {
+        showNotification('Loading report details...', 'info');
+        
+        const response = await fetch(`${API_BASE_URL}/reports/${reportId}`);
+        if (!response.ok) throw new Error('Failed to fetch report details');
+        
+        const report = await response.json();
+        
+        // In a real application, you would display this in a modal or new page
+        console.log('Report details:', report);
+        
+        // For this example, we'll show an alert with basic info
+        alert(`Report Details:\n\nTitle: ${report.title}\nActivity: ${report.activity_name}\nStatus: ${report.status}\nSubmitted: ${formatDate(report.created_at)}\n\nContent:\n${report.content}`);
+        
+        showNotification('Report details loaded', 'success');
+    } catch (error) {
+        console.error('Error loading report details:', error);
+        showNotification('Failed to load report details', 'error');
+    }
+}
     </script>
 </body>
 </html>

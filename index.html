@@ -540,6 +540,88 @@
                 justify-content: center;
             }
         }
+
+        /* Report Details Modal */
+        .report-details-modal {
+            max-width: 800px;
+        }
+
+        .report-details-content {
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .report-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .report-details-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        .report-details-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .report-details-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--secondary-color);
+        }
+
+        .report-details-body {
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .report-attachments {
+            margin-top: 2rem;
+        }
+
+        .attachment-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--light-color);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+        }
+
+        .attachment-item i {
+            color: var(--secondary-color);
+        }
+
+        .attachment-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .attachment-link:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -634,6 +716,46 @@
             </div>
         </div>
 
+        <div class="modal" id="report-details-modal">
+            <div class="modal-content report-details-modal">
+                <div class="modal-header">
+                    <h3>Report Details</h3>
+                    <button class="close-modal">&times;</button>
+                </div>
+                <div class="report-details-content">
+                    <div class="report-details-header">
+                        <h4 class="report-details-title" id="report-details-title"></h4>
+                        <span class="report-status" id="report-details-status"></span>
+                    </div>
+                    
+                    <div class="report-details-meta">
+                        <div class="report-details-meta-item">
+                            <i class="fas fa-user"></i>
+                            <span id="report-details-author"></span>
+                        </div>
+                        <div class="report-details-meta-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span id="report-details-date"></span>
+                        </div>
+                        <div class="report-details-meta-item">
+                            <i class="fas fa-tasks"></i>
+                            <span id="report-details-activity"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="report-details-body" id="report-details-content"></div>
+                    
+                    <div class="report-attachments" id="report-attachments-section">
+                        <h5>Attachments</h5>
+                        <div class="attachment-list" id="report-attachments-list"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary close-modal">Close</button>
+                </div>
+            </div>
+        </div>
+
         <div class="notification" id="notification"></div>
     </div>
 
@@ -654,8 +776,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitReportBtn = document.getElementById('submit-report-btn');
     const reportsList = document.getElementById('reports-list');
     const successModal = document.getElementById('success-modal');
+    const reportDetailsModal = document.getElementById('report-details-modal');
     const closeModalButtons = document.querySelectorAll('.close-modal');
     const notification = document.getElementById('notification');
+    
+    // Report details modal elements
+    const reportDetailsTitle = document.getElementById('report-details-title');
+    const reportDetailsStatus = document.getElementById('report-details-status');
+    const reportDetailsAuthor = document.getElementById('report-details-author');
+    const reportDetailsDate = document.getElementById('report-details-date');
+    const reportDetailsActivity = document.getElementById('report-details-activity');
+    const reportDetailsContent = document.getElementById('report-details-content');
+    const reportAttachmentsList = document.getElementById('report-attachments-list');
+    const reportAttachmentsSection = document.getElementById('report-attachments-section');
     
     // Initialize the app
     init();
@@ -708,6 +841,7 @@ document.addEventListener('DOMContentLoaded', function() {
         closeModalButtons.forEach(button => {
             button.addEventListener('click', () => {
                 successModal.classList.remove('active');
+                reportDetailsModal.classList.remove('active');
             });
         });
         
@@ -803,7 +937,7 @@ document.addEventListener('DOMContentLoaded', function() {
             reports.forEach(report => {
                 const reportItem = document.createElement('div');
                 reportItem.className = 'report-item';
-                reportItem.dataset.reportId = report.id; 
+                reportItem.dataset.reportId = report.id;
                 
                 // Find employee name
                 const employee = employees.find(e => e.id === report.submitted_by);
@@ -818,7 +952,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="report-submitter">Submitted by: ${employeeName}</div>
                     <div class="report-status ${report.status}">${report.status}</div>
                 `;
+                
+                // Add click event to view report details
                 reportItem.addEventListener('click', () => viewReportDetails(report.id));
+                
                 reportsList.appendChild(reportItem);
             });
             
@@ -826,6 +963,67 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error loading recent reports:', error);
             showNotification('Failed to load recent reports', 'error');
+        }
+    }
+    
+    async function viewReportDetails(reportId) {
+        try {
+            showNotification('Loading report details...', 'info');
+            
+            const response = await fetch(`${API_BASE_URL}/reports/${reportId}`);
+            if (!response.ok) throw new Error('Failed to fetch report details');
+            
+            const report = await response.json();
+            
+            // Find employee name
+            const employee = employees.find(e => e.id === report.submitted_by);
+            const employeeName = employee ? employee.name : 'Unknown';
+            
+            // Populate modal with report details
+            reportDetailsTitle.textContent = report.title;
+            reportDetailsStatus.textContent = report.status;
+            reportDetailsStatus.className = `report-status ${report.status}`;
+            reportDetailsAuthor.textContent = employeeName;
+            reportDetailsDate.textContent = formatDate(report.created_at);
+            reportDetailsActivity.textContent = report.activity_name;
+            reportDetailsContent.innerHTML = report.content;
+            
+            // Handle attachments
+            reportAttachmentsList.innerHTML = '';
+            if (report.attachments && report.attachments.length > 0) {
+                report.attachments.forEach(attachment => {
+                    const attachmentItem = document.createElement('div');
+                    attachmentItem.className = 'attachment-item';
+                    
+                    // Get icon based on file type
+                    let fileIcon = 'fa-file-alt';
+                    if (attachment.type) {
+                        if (attachment.type.startsWith('image/')) fileIcon = 'fa-file-image';
+                        else if (attachment.type.startsWith('video/')) fileIcon = 'fa-file-video';
+                        else if (attachment.type.startsWith('audio/')) fileIcon = 'fa-file-audio';
+                        else if (attachment.type === 'application/pdf') fileIcon = 'fa-file-pdf';
+                        else if (attachment.type === 'application/msword' || attachment.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') fileIcon = 'fa-file-word';
+                        else if (attachment.type === 'application/vnd.ms-excel' || attachment.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') fileIcon = 'fa-file-excel';
+                    }
+                    
+                    attachmentItem.innerHTML = `
+                        <i class="fas ${fileIcon}"></i>
+                        <a href="${attachment.url}" target="_blank" class="attachment-link">${attachment.name}</a>
+                    `;
+                    reportAttachmentsList.appendChild(attachmentItem);
+                });
+                reportAttachmentsSection.style.display = 'block';
+            } else {
+                reportAttachmentsSection.style.display = 'none';
+            }
+            
+            // Show the modal
+            reportDetailsModal.classList.add('active');
+            
+            showNotification('Report details loaded', 'success');
+        } catch (error) {
+            console.error('Error loading report details:', error);
+            showNotification('Failed to load report details', 'error');
         }
     }
     
@@ -1028,27 +1226,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 });
-        async function viewReportDetails(reportId) {
-    try {
-        showNotification('Loading report details...', 'info');
-        
-        const response = await fetch(`${API_BASE_URL}/reports/${reportId}`);
-        if (!response.ok) throw new Error('Failed to fetch report details');
-        
-        const report = await response.json();
-        
-        // In a real application, you would display this in a modal or new page
-        console.log('Report details:', report);
-        
-        // For this example, we'll show an alert with basic info
-        alert(`Report Details:\n\nTitle: ${report.title}\nActivity: ${report.activity_name}\nStatus: ${report.status}\nSubmitted: ${formatDate(report.created_at)}\n\nContent:\n${report.content}`);
-        
-        showNotification('Report details loaded', 'success');
-    } catch (error) {
-        console.error('Error loading report details:', error);
-        showNotification('Failed to load report details', 'error');
-    }
-}
     </script>
 </body>
 </html>

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Report Viewer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <title>Report Viewer | RCDNET</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -14,8 +14,13 @@
             --light-color: #f9fafb;
             --dark-color: #111827;
             --border-color: #e5e7eb;
-            --radius-md: 0.375rem;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
         }
 
         * {
@@ -29,45 +34,149 @@
             background-color: #f3f4f6;
             color: var(--dark-color);
             line-height: 1.5;
-            padding: 2rem;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .header {
             background-color: white;
-            border-radius: var(--radius-md);
             box-shadow: var(--shadow-sm);
-            padding: 2rem;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        h1 {
-            font-size: 1.75rem;
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 600;
-            margin-bottom: 2rem;
+            cursor: pointer;
+        }
+
+        .main-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .dashboard-container {
+            background-color: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+        }
+
+        .dashboard-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dashboard-title {
+            font-size: 1.5rem;
+            font-weight: 600;
             color: var(--dark-color);
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            background-color: var(--light-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            background-color: white;
+            min-width: 180px;
+            transition: all 0.2s;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
         .reports-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 1rem;
         }
 
         .reports-table th,
         .reports-table td {
-            padding: 1rem;
+            padding: 1rem 1.5rem;
             text-align: left;
             border-bottom: 1px solid var(--border-color);
         }
 
         .reports-table th {
-            font-weight: 500;
+            font-weight: 600;
             color: var(--secondary-color);
             background-color: var(--light-color);
             text-transform: uppercase;
             font-size: 0.75rem;
             letter-spacing: 0.05em;
+            position: sticky;
+            top: 0;
+        }
+
+        .reports-table tr:last-child td {
+            border-bottom: none;
         }
 
         .reports-table tr:hover {
@@ -75,11 +184,13 @@
         }
 
         .status {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            border-radius: var(--radius-md);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 2rem;
             font-size: 0.75rem;
-            font-weight: 500;
+            font-weight: 600;
             text-transform: capitalize;
         }
 
@@ -101,15 +212,16 @@
         .btn {
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
-            padding: 0.5rem 1rem;
+            padding: 0.65rem 1.25rem;
             border-radius: var(--radius-md);
             font-weight: 500;
             cursor: pointer;
             text-decoration: none;
             transition: all 0.2s;
             border: none;
-            font-size: 0.875rem;
+            font-size: 0.9rem;
         }
 
         .btn-primary {
@@ -119,6 +231,7 @@
 
         .btn-primary:hover {
             background-color: var(--primary-hover);
+            transform: translateY(-1px);
         }
 
         .btn-secondary {
@@ -129,6 +242,7 @@
 
         .btn-secondary:hover {
             background-color: var(--light-color);
+            transform: translateY(-1px);
         }
 
         .view-details {
@@ -136,10 +250,15 @@
             text-decoration: none;
             font-weight: 500;
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s;
         }
 
         .view-details:hover {
-            text-decoration: underline;
+            color: var(--primary-hover);
+            transform: translateY(-1px);
         }
 
         .modal {
@@ -152,7 +271,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 50;
+            z-index: 100;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.2s;
@@ -165,13 +284,24 @@
 
         .modal-content {
             background-color: white;
-            border-radius: var(--radius-md);
+            border-radius: var(--radius-lg);
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: var(--shadow-sm);
-            padding: 2rem;
+            box-shadow: var(--shadow-md);
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .modal-header {
@@ -179,13 +309,14 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
+            padding: 1.5rem 2rem;
             border-bottom: 1px solid var(--border-color);
         }
 
         .modal-title {
             font-size: 1.5rem;
             font-weight: 600;
+            color: var(--dark-color);
         }
 
         .close-modal {
@@ -194,85 +325,139 @@
             font-size: 1.5rem;
             cursor: pointer;
             color: var(--secondary-color);
+            transition: all 0.2s;
+            padding: 0.25rem;
+            border-radius: 0.25rem;
+        }
+
+        .close-modal:hover {
+            color: var(--dark-color);
+            background-color: var(--light-color);
+        }
+
+        .modal-body {
+            padding: 0 2rem 2rem;
         }
 
         .report-meta {
             display: flex;
             flex-wrap: wrap;
             gap: 1.5rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
         }
 
         .meta-item {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 0.875rem;
+            font-size: 0.9rem;
             color: var(--secondary-color);
         }
 
         .report-content {
-            line-height: 1.6;
+            line-height: 1.7;
             margin-bottom: 2rem;
+            white-space: pre-line;
         }
 
         .attachments {
-            margin-top: 2rem;
+            margin-top: 2.5rem;
+        }
+
+        .attachments-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
         }
 
         .attachment-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
             background-color: var(--light-color);
             border-radius: var(--radius-md);
-            margin-top: 0.5rem;
+            margin-top: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .attachment-item:hover {
+            background-color: #eef2ff;
         }
 
         .attachment-link {
             color: var(--primary-color);
             text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
         }
 
         .attachment-link:hover {
+            color: var(--primary-hover);
             text-decoration: underline;
         }
 
-        .search-filter {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-        }
-
-        .filter-select {
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            font-size: 1rem;
-            background-color: white;
+        .file-size {
+            margin-left: auto;
+            color: var(--secondary-color);
+            font-size: 0.8rem;
         }
 
         .no-attachments {
             color: var(--secondary-color);
             font-style: italic;
+            padding: 0.5rem 0;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .empty-state {
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--secondary-color);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .empty-title {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+
+        .empty-description {
+            margin-bottom: 1.5rem;
         }
 
         @media (max-width: 768px) {
-            body {
+            .header {
                 padding: 1rem;
             }
             
-            .container {
+            .main-container {
                 padding: 1rem;
+            }
+            
+            .dashboard-header,
+            .search-filter {
+                padding: 1rem;
+                flex-direction: column;
+            }
+            
+            .dashboard-actions {
+                margin-top: 1rem;
+                width: 100%;
             }
             
             .reports-table th,
@@ -280,85 +465,135 @@
                 padding: 0.75rem;
             }
             
-            .search-filter {
-                flex-direction: column;
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: 1rem;
+            }
+            
+            .report-meta {
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .logo-text {
+                display: none;
+            }
+            
+            .reports-table {
+                display: block;
+                overflow-x: auto;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Submitted Reports</h1>
-        
-        <div class="search-filter">
-            <input type="text" class="search-input" placeholder="Search reports..." id="search-input">
-            <select class="filter-select" id="status-filter">
-                <option value="">All Statuses</option>
-                <option value="submitted">Submitted</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
-            </select>
+    <header class="header">
+        <div class="logo-container">
+            <!-- Replace with actual logo -->
+            <img src="https://via.placeholder.com/40x40" alt="RCDNET Logo" class="logo">
+            <span class="logo-text">RCDNET</span>
         </div>
-        
-        <table class="reports-table">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Activity</th>
-                    <th>Submitted By</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="reports-body">
-                <!-- Reports will be populated by JavaScript -->
-            </tbody>
-        </table>
-    </div>
+        <div class="user-menu">
+            <div class="user-avatar">JD</div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1 class="dashboard-title">Submitted Reports</h1>
+                <div class="dashboard-actions">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-plus"></i> New Report
+                    </button>
+                </div>
+            </div>
+            
+            <div class="search-filter">
+                <input type="text" class="search-input" placeholder="Search reports by title, activity, or content..." id="search-input">
+                <select class="filter-select" id="status-filter">
+                    <option value="">All Statuses</option>
+                    <option value="submitted">Submitted</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+            
+            <table class="reports-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Activity</th>
+                        <th>Submitted By</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="reports-body">
+                    <!-- Reports will be populated by JavaScript -->
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div>
+                                <i class="fas fa-spinner fa-spin empty-icon"></i>
+                                <p>Loading reports...</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
 
     <!-- Report Details Modal -->
     <div class="modal" id="report-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" id="report-title"></h2>
+                <h2 class="modal-title" id="report-title">Report Details</h2>
                 <button class="close-modal">&times;</button>
             </div>
             
-            <div class="report-meta">
-                <div class="meta-item">
-                    <i class="fas fa-user"></i>
-                    <span id="report-author"></span>
+            <div class="modal-body">
+                <div class="report-meta">
+                    <div class="meta-item">
+                        <i class="fas fa-user"></i>
+                        <span id="report-author">Loading...</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span id="report-date">Loading...</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-tasks"></i>
+                        <span id="report-activity">Loading...</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="fas fa-info-circle"></i>
+                        <span id="report-status" class="status">Loading...</span>
+                    </div>
                 </div>
-                <div class="meta-item">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span id="report-date"></span>
+                
+                <div class="report-content" id="report-content">
+                    <p>Loading report content...</p>
                 </div>
-                <div class="meta-item">
-                    <i class="fas fa-tasks"></i>
-                    <span id="report-activity"></span>
-                </div>
-                <div class="meta-item">
-                    <i class="fas fa-info-circle"></i>
-                    <span id="report-status" class="status"></span>
+                
+                <div class="attachments">
+                    <h3 class="attachments-title">Attachments</h3>
+                    <div id="attachments-list">
+                        <p class="no-attachments">Loading attachments...</p>
+                    </div>
                 </div>
             </div>
             
-            <div class="report-content" id="report-content"></div>
-            
-            <div class="attachments" id="report-attachments">
-                <h3>Attachments</h3>
-                <div id="attachments-list">
-                    <p class="no-attachments">Loading attachments...</p>
-                </div>
-            </div>
-            
-            <div style="margin-top: 2rem;">
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">
+                    <i class="fas fa-times"></i> Close
+                </button>
                 <button class="btn btn-primary" id="download-report">
                     <i class="fas fa-download"></i> Download Report
-                </button>
-                <button class="btn btn-secondary close-modal" style="margin-left: 0.5rem;">
-                    Close
                 </button>
             </div>
         </div>
@@ -386,7 +621,6 @@
             const reportContent = document.getElementById('report-content');
             const attachmentsList = document.getElementById('attachments-list');
             const downloadBtn = document.getElementById('download-report');
-            const reportAttachments = document.getElementById('report-attachments');
             
             // Initialize the app
             loadReports();
@@ -410,16 +644,31 @@
             
             async function loadReports() {
                 try {
+                    reportsBody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <div>
+                                    <i class="fas fa-spinner fa-spin empty-icon"></i>
+                                    <p>Loading reports...</p>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    
                     const response = await fetch(`${API_BASE_URL}/reports/`);
                     if (!response.ok) throw new Error('Failed to fetch reports');
                     
                     const data = await response.json();
                     reports = data.reports || [];
                     
-                    displayReports(reports);
+                    if (reports.length === 0) {
+                        displayEmptyState();
+                    } else {
+                        displayReports(reports);
+                    }
                 } catch (error) {
                     console.error('Error loading reports:', error);
-                    reportsBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem;">Failed to load reports. Please try again later.</td></tr>`;
+                    displayErrorState();
                 }
             }
             
@@ -427,7 +676,7 @@
                 reportsBody.innerHTML = '';
                 
                 if (reportsToDisplay.length === 0) {
-                    reportsBody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem;">No reports found</td></tr>`;
+                    displayEmptyState();
                     return;
                 }
                 
@@ -436,13 +685,15 @@
                     row.dataset.reportId = report.id;
                     
                     row.innerHTML = `
-                        <td>${report.title}</td>
-                        <td>${report.activity_name}</td>
+                        <td>${report.title || 'Untitled Report'}</td>
+                        <td>${report.activity_name || 'N/A'}</td>
                         <td>${report.submitted_by_name || 'Unknown'}</td>
                         <td>${formatDate(report.created_at)}</td>
-                        <td><span class="status ${report.status}">${report.status}</span></td>
+                        <td><span class="status ${report.status || 'submitted'}">${report.status || 'submitted'}</span></td>
                         <td>
-                            <span class="view-details" data-report-id="${report.id}">View Details</span>
+                            <span class="view-details" data-report-id="${report.id}">
+                                <i class="fas fa-eye"></i> View
+                            </span>
                         </td>
                     `;
                     
@@ -452,10 +703,44 @@
                 // Add click event to view details buttons
                 document.querySelectorAll('.view-details').forEach(button => {
                     button.addEventListener('click', (e) => {
-                        const reportId = e.target.getAttribute('data-report-id');
+                        const reportId = e.currentTarget.getAttribute('data-report-id');
                         showReportDetails(reportId);
                     });
                 });
+            }
+            
+            function displayEmptyState() {
+                reportsBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div>
+                                <i class="fas fa-file-alt empty-icon"></i>
+                                <h3 class="empty-title">No Reports Found</h3>
+                                <p class="empty-description">There are no reports to display at this time.</p>
+                                <button class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Create New Report
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            function displayErrorState() {
+                reportsBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div>
+                                <i class="fas fa-exclamation-triangle empty-icon"></i>
+                                <h3 class="empty-title">Failed to Load Reports</h3>
+                                <p class="empty-description">We couldn't load the reports. Please try again later.</p>
+                                <button class="btn btn-primary" onclick="window.location.reload()">
+                                    <i class="fas fa-sync-alt"></i> Retry
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             }
             
             async function showReportDetails(reportId) {
@@ -465,13 +750,13 @@
                     if (!report) throw new Error('Report not found');
                     
                     // Populate modal with report details
-                    reportTitle.textContent = report.title;
+                    reportTitle.textContent = report.title || 'Untitled Report';
                     reportAuthor.textContent = report.submitted_by_name || 'Unknown';
                     reportDate.textContent = formatDate(report.created_at);
-                    reportActivity.textContent = report.activity_name;
-                    reportStatus.textContent = report.status;
-                    reportStatus.className = `status ${report.status}`;
-                    reportContent.innerHTML = report.content;
+                    reportActivity.textContent = report.activity_name || 'N/A';
+                    reportStatus.textContent = report.status || 'submitted';
+                    reportStatus.className = `status ${report.status || 'submitted'}`;
+                    reportContent.innerHTML = report.content ? report.content.replace(/\n/g, '<br>') : '<em>No content provided</em>';
                     
                     // Load attachments
                     await loadAttachments(reportId);
@@ -485,7 +770,7 @@
                     reportModal.classList.add('active');
                 } catch (error) {
                     console.error('Error showing report details:', error);
-                    alert('Failed to load report details');
+                    alert('Failed to load report details. Please try again.');
                 }
             }
             
@@ -501,7 +786,7 @@
                     const attachments = await response.json();
                     
                     if (attachments.length === 0) {
-                        attachmentsList.innerHTML = '<p class="no-attachments">No attachments found</p>';
+                        attachmentsList.innerHTML = '<p class="no-attachments">No attachments found for this report.</p>';
                         return;
                     }
                     
@@ -532,9 +817,9 @@
                             <a href="${API_BASE_URL}/reports/${reportId}/attachments/${attachment.id}/download" 
                                class="attachment-link" 
                                download="${attachment.original_filename}">
-                                ${attachment.original_filename}
+                                ${attachment.original_filename || 'Unnamed File'}
                             </a>
-                            <span style="margin-left: auto; color: var(--secondary-color); font-size: 0.75rem;">
+                            <span class="file-size">
                                 ${formatFileSize(attachment.file_size || 0)}
                             </span>
                         `;
@@ -543,7 +828,7 @@
                     
                 } catch (error) {
                     console.error('Error loading attachments:', error);
-                    attachmentsList.innerHTML = '<p class="no-attachments">Failed to load attachments</p>';
+                    attachmentsList.innerHTML = '<p class="no-attachments">Failed to load attachments. Please try again.</p>';
                 }
             }
             
@@ -553,27 +838,45 @@
                     <!DOCTYPE html>
                     <html>
                     <head>
-                        <title>${report.title}</title>
+                        <title>${report.title || 'Untitled Report'} | RCDNET</title>
                         <style>
-                            body { font-family: Arial, sans-serif; line-height: 1.6; padding: 2rem; }
-                            h1 { color: #111827; margin-bottom: 1rem; }
-                            .meta { margin-bottom: 2rem; color: #6b7280; }
-                            .content { margin-top: 1.5rem; }
-                            .attachments { margin-top: 2rem; }
-                            .attachment-item { margin-bottom: 0.5rem; }
+                            body { font-family: Arial, sans-serif; line-height: 1.6; padding: 2rem; max-width: 900px; margin: 0 auto; }
+                            h1 { color: #111827; margin-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; }
+                            .meta { margin-bottom: 2rem; color: #6b7280; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+                            .meta-item { display: flex; gap: 0.5rem; align-items: center; }
+                            .content { margin: 2rem 0; white-space: pre-line; }
+                            .attachments { margin-top: 3rem; }
+                            .attachment-item { margin-bottom: 0.75rem; display: flex; gap: 0.5rem; align-items: center; }
+                            .logo { text-align: center; margin-bottom: 2rem; }
+                            .logo img { height: 60px; }
                         </style>
                     </head>
                     <body>
-                        <h1>${report.title}</h1>
+                        <div class="logo">
+                            <img src="https://via.placeholder.com/150x60?text=RCDNET" alt="RCDNET Logo">
+                        </div>
+                        
+                        <h1>${report.title || 'Untitled Report'}</h1>
+                        
                         <div class="meta">
-                            <p><strong>Submitted by:</strong> ${report.submitted_by_name || 'Unknown'}</p>
-                            <p><strong>Date:</strong> ${formatDate(report.created_at)}</p>
-                            <p><strong>Activity:</strong> ${report.activity_name}</p>
-                            <p><strong>Status:</strong> ${report.status}</p>
+                            <div class="meta-item">
+                                <strong>Submitted by:</strong> ${report.submitted_by_name || 'Unknown'}
+                            </div>
+                            <div class="meta-item">
+                                <strong>Date:</strong> ${formatDate(report.created_at)}
+                            </div>
+                            <div class="meta-item">
+                                <strong>Activity:</strong> ${report.activity_name || 'N/A'}
+                            </div>
+                            <div class="meta-item">
+                                <strong>Status:</strong> ${report.status || 'submitted'}
+                            </div>
                         </div>
+                        
                         <div class="content">
-                            ${report.content}
+                            ${report.content || 'No content provided'}
                         </div>
+                        
                         <div class="attachments">
                             <h2>Attachments</h2>
                             ${getAttachmentsListForDownload(report.id)}
@@ -586,7 +889,7 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `${report.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_report.html`;
+                a.download = `${(report.title || 'report').replace(/[^a-z0-9]/gi, '_').toLowerCase()}_rcdnet_report.html`;
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -596,14 +899,15 @@
             function getAttachmentsListForDownload(reportId) {
                 const report = reports.find(r => r.id == reportId);
                 if (!report || !report.attachments || report.attachments.length === 0) {
-                    return '<p>No attachments</p>';
+                    return '<p>No attachments available for this report.</p>';
                 }
                 
                 return report.attachments.map(attachment => {
                     return `<div class="attachment-item">
+                        <i class="fas fa-paperclip"></i>
                         <a href="${API_BASE_URL}/reports/${reportId}/attachments/${attachment.id}/download" 
                            download="${attachment.original_filename}">
-                            ${attachment.original_filename}
+                            ${attachment.original_filename || 'Unnamed File'}
                         </a>
                         <span>(${formatFileSize(attachment.file_size || 0)})</span>
                     </div>`;
@@ -616,10 +920,10 @@
                 
                 const filtered = reports.filter(report => {
                     const matchesSearch = 
-                        report.title.toLowerCase().includes(searchTerm) ||
-                        report.activity_name.toLowerCase().includes(searchTerm) ||
+                        (report.title && report.title.toLowerCase().includes(searchTerm)) ||
+                        (report.activity_name && report.activity_name.toLowerCase().includes(searchTerm)) ||
                         (report.submitted_by_name && report.submitted_by_name.toLowerCase().includes(searchTerm)) ||
-                        report.content.toLowerCase().includes(searchTerm);
+                        (report.content && report.content.toLowerCase().includes(searchTerm));
                     
                     const matchesStatus = !statusFilterValue || report.status === statusFilterValue;
                     

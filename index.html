@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.tiny.cloud/1/YOUR_API_KEY/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
     <style>
         :root {
             --primary-color: #4f46e5;
@@ -170,12 +169,63 @@
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
+        .editor-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            background-color: #f3f4f6;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: var(--radius-md) var(--radius-md) 0 0;
+        }
+
+        .toolbar-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toolbar-btn:hover {
+            background-color: #f3f4f6;
+        }
+
+        .toolbar-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .toolbar-separator {
+            width: 1px;
+            height: 24px;
+            background-color: var(--border-color);
+            margin: 0 0.25rem;
+        }
+
+        .color-picker {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+        }
+
         .editor-container {
             min-height: 300px;
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
+            border-radius: 0 0 var(--radius-md) var(--radius-md);
             padding: 1rem;
             background-color: white;
+            overflow-y: auto;
         }
 
         .editor-container[contenteditable="true"]:empty:before {
@@ -523,25 +573,6 @@
             }
         }
 
-        @media (max-width: 768px) {
-            .reporting-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .recent-reports {
-                order: -1;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-            }
-            
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-
         /* Report Details Modal */
         .report-details-modal {
             max-width: 800px;
@@ -623,6 +654,25 @@
             color: var(--primary-hover);
             text-decoration: underline;
         }
+
+        @media (max-width: 768px) {
+            .reporting-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .recent-reports {
+                order: -1;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -667,7 +717,24 @@
 
                     <div class="form-group">
                         <label for="report-content">Report Content</label>
-                        <textarea id="report-editor" class="form-control"></textarea>
+                        <div class="editor-toolbar" id="editor-toolbar">
+                            <button class="toolbar-btn" data-command="bold" title="Bold (Ctrl+B)"><i class="fas fa-bold"></i></button>
+                            <button class="toolbar-btn" data-command="italic" title="Italic (Ctrl+I)"><i class="fas fa-italic"></i></button>
+                            <button class="toolbar-btn" data-command="underline" title="Underline (Ctrl+U)"><i class="fas fa-underline"></i></button>
+                            <div class="toolbar-separator"></div>
+                            <button class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+                            <button class="toolbar-btn" data-command="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+                            <div class="toolbar-separator"></div>
+                            <button class="toolbar-btn" data-command="justifyLeft" title="Align Left"><i class="fas fa-align-left"></i></button>
+                            <button class="toolbar-btn" data-command="justifyCenter" title="Align Center"><i class="fas fa-align-center"></i></button>
+                            <button class="toolbar-btn" data-command="justifyRight" title="Align Right"><i class="fas fa-align-right"></i></button>
+                            <div class="toolbar-separator"></div>
+                            <input type="color" class="color-picker" data-command="foreColor" value="#000000" title="Text Color">
+                            <input type="color" class="color-picker" data-command="hiliteColor" value="#ffffff" title="Highlight Color">
+                            <div class="toolbar-separator"></div>
+                            <button class="toolbar-btn" data-command="removeFormat" title="Clear Formatting"><i class="fas fa-eraser"></i></button>
+                        </div>
+                        <div id="report-editor" class="form-control editor-container" contenteditable="true" placeholder="Enter your report content here"></div>
                     </div>
 
                     <div class="form-group">
@@ -780,6 +847,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const reportDetailsModal = document.getElementById('report-details-modal');
     const closeModalButtons = document.querySelectorAll('.close-modal');
     const notification = document.getElementById('notification');
+    const editorToolbar = document.getElementById('editor-toolbar');
     
     // Report details modal elements
     const reportDetailsTitle = document.getElementById('report-details-title');
@@ -806,6 +874,69 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Set up event listeners
         setupEventListeners();
+        
+        // Initialize rich text editor
+        initRichTextEditor();
+    }
+    
+    function initRichTextEditor() {
+        // Set up toolbar buttons
+        editorToolbar.addEventListener('click', function(e) {
+            const btn = e.target.closest('.toolbar-btn');
+            if (btn) {
+                e.preventDefault();
+                const command = btn.dataset.command;
+                document.execCommand(command, false, null);
+                updateToolbarButtons();
+            }
+        });
+        
+        // Set up color pickers
+        editorToolbar.addEventListener('change', function(e) {
+            const picker = e.target.closest('.color-picker');
+            if (picker) {
+                const command = picker.dataset.command;
+                document.execCommand(command, false, picker.value);
+            }
+        });
+        
+        // Update toolbar button states based on current selection
+        reportEditor.addEventListener('mouseup', updateToolbarButtons);
+        reportEditor.addEventListener('keyup', updateToolbarButtons);
+        
+        // Handle keyboard shortcuts
+        reportEditor.addEventListener('keydown', function(e) {
+            // Bold - Ctrl+B
+            if (e.ctrlKey && e.key === 'b') {
+                e.preventDefault();
+                document.execCommand('bold', false, null);
+                updateToolbarButtons();
+            }
+            // Italic - Ctrl+I
+            if (e.ctrlKey && e.key === 'i') {
+                e.preventDefault();
+                document.execCommand('italic', false, null);
+                updateToolbarButtons();
+            }
+            // Underline - Ctrl+U
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                document.execCommand('underline', false, null);
+                updateToolbarButtons();
+            }
+        });
+    }
+    
+    function updateToolbarButtons() {
+        const commands = ['bold', 'italic', 'underline', 'justifyLeft', 'justifyCenter', 'justifyRight'];
+        
+        commands.forEach(command => {
+            const btn = editorToolbar.querySelector(`[data-command="${command}"]`);
+            if (btn) {
+                const isActive = document.queryCommandState(command);
+                btn.classList.toggle('active', isActive);
+            }
+        });
     }
     
     function setupEventListeners() {
@@ -1227,23 +1358,6 @@ document.addEventListener('DOMContentLoaded', function() {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 });
-        function setupRichTextEditor() {
-    tinymce.init({
-        selector: '#report-editor',
-        plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount',
-        toolbar: 'undo redo | blocks | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image media table | removeformat help',
-        menubar: false,
-        height: 300,
-        skin: 'oxide',
-        content_css: 'default',
-        placeholder: 'Enter your report content here...',
-        setup: (editor) => {
-            editor.on('change', () => {
-                editor.save();
-            });
-        }
-    });
-}
     </script>
 </body>
 </html>

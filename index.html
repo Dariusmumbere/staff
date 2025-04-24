@@ -655,6 +655,159 @@
             text-decoration: underline;
         }
 
+        /* Enhanced Editor Styles */
+        .font-size-selector {
+            width: auto;
+            padding: 0 0.5rem;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+
+        .font-family-selector {
+            width: auto;
+            padding: 0 0.5rem;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+
+        .toolbar-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .toolbar-dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            min-width: 160px;
+            box-shadow: var(--shadow-md);
+            border-radius: var(--radius-md);
+            z-index: 1;
+            padding: 0.5rem;
+            top: 100%;
+            left: 0;
+        }
+
+        .toolbar-dropdown:hover .toolbar-dropdown-content {
+            display: block;
+        }
+
+        .toolbar-dropdown-btn {
+            width: auto;
+            padding: 0 0.5rem;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+
+        .toolbar-dropdown-btn:hover {
+            background-color: #f3f4f6;
+        }
+
+        .toolbar-dropdown-item {
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+        }
+
+        .toolbar-dropdown-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .emoji-picker {
+            position: absolute;
+            bottom: 100%;
+            right: 0;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 0.5rem;
+            width: 250px;
+            height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .emoji-picker.active {
+            display: block;
+        }
+
+        .emoji-item {
+            display: inline-block;
+            padding: 0.25rem;
+            cursor: pointer;
+            font-size: 1.25rem;
+        }
+
+        .emoji-item:hover {
+            background-color: #f3f4f6;
+            border-radius: var(--radius-sm);
+        }
+
+        .toolbar-btn.emoji-btn {
+            position: relative;
+        }
+
+        .editor-container img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .editor-container table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 1rem 0;
+        }
+
+        .editor-container table, .editor-container th, .editor-container td {
+            border: 1px solid var(--border-color);
+        }
+
+        .editor-container th, .editor-container td {
+            padding: 0.5rem;
+        }
+
+        .editor-container blockquote {
+            border-left: 4px solid var(--primary-color);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            color: var(--secondary-color);
+            font-style: italic;
+        }
+
+        .editor-container pre {
+            background-color: #f3f4f6;
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            overflow-x: auto;
+            font-family: monospace;
+        }
+
+        .editor-container code {
+            background-color: #f3f4f6;
+            padding: 0.2rem 0.4rem;
+            border-radius: var(--radius-sm);
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+
         @media (max-width: 768px) {
             .reporting-container {
                 grid-template-columns: 1fr;
@@ -671,6 +824,20 @@
             .btn {
                 width: 100%;
                 justify-content: center;
+            }
+
+            .editor-toolbar {
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+            }
+
+            .editor-toolbar::-webkit-scrollbar {
+                height: 4px;
+            }
+
+            .editor-toolbar::-webkit-scrollbar-thumb {
+                background-color: var(--border-color);
+                border-radius: var(--radius-sm);
             }
         }
     </style>
@@ -718,21 +885,111 @@
                     <div class="form-group">
                         <label for="report-content">Report Content</label>
                         <div class="editor-toolbar" id="editor-toolbar">
+                            <!-- Font Family -->
+                            <div class="toolbar-dropdown">
+                                <button class="toolbar-dropdown-btn">
+                                    <i class="fas fa-font"></i>
+                                    <span>Font</span>
+                                    <i class="fas fa-caret-down"></i>
+                                </button>
+                                <div class="toolbar-dropdown-content">
+                                    <div class="toolbar-dropdown-item" data-command="fontName" data-value="Arial">Arial</div>
+                                    <div class="toolbar-dropdown-item" data-command="fontName" data-value="Verdana">Verdana</div>
+                                    <div class="toolbar-dropdown-item" data-command="fontName" data-value="Georgia">Georgia</div>
+                                    <div class="toolbar-dropdown-item" data-command="fontName" data-value="Times New Roman">Times New Roman</div>
+                                    <div class="toolbar-dropdown-item" data-command="fontName" data-value="Courier New">Courier New</div>
+                                    <div class="toolbar-dropdown-item" data-command="fontName" data-value="Inter">Inter</div>
+                                </div>
+                            </div>
+
+                            <!-- Font Size -->
+                            <div class="toolbar-dropdown">
+                                <button class="toolbar-dropdown-btn">
+                                    <i class="fas fa-text-height"></i>
+                                    <span>Size</span>
+                                    <i class="fas fa-caret-down"></i>
+                                </button>
+                                <div class="toolbar-dropdown-content">
+                                    <div class="toolbar-dropdown-item" data-command="fontSize" data-value="1">Small (8pt)</div>
+                                    <div class="toolbar-dropdown-item" data-command="fontSize" data-value="2">Normal (10pt)</div>
+                                    <div class="toolbar-dropdown-item" data-command="fontSize" data-value="3">Medium (12pt)</div>
+                                    <div class="toolbar-dropdown-item" data-command="fontSize" data-value="4">Large (14pt)</div>
+                                    <div class="toolbar-dropdown-item" data-command="fontSize" data-value="5">Extra Large (18pt)</div>
+                                    <div class="toolbar-dropdown-item" data-command="fontSize" data-value="6">Huge (24pt)</div>
+                                </div>
+                            </div>
+
+                            <div class="toolbar-separator"></div>
+
+                            <!-- Text Formatting -->
                             <button class="toolbar-btn" data-command="bold" title="Bold (Ctrl+B)"><i class="fas fa-bold"></i></button>
                             <button class="toolbar-btn" data-command="italic" title="Italic (Ctrl+I)"><i class="fas fa-italic"></i></button>
                             <button class="toolbar-btn" data-command="underline" title="Underline (Ctrl+U)"><i class="fas fa-underline"></i></button>
+                            <button class="toolbar-btn" data-command="strikeThrough" title="Strikethrough"><i class="fas fa-strikethrough"></i></button>
+                            
                             <div class="toolbar-separator"></div>
-                            <button class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List"><i class="fas fa-list-ul"></i></button>
-                            <button class="toolbar-btn" data-command="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
-                            <div class="toolbar-separator"></div>
+
+                            <!-- Text Alignment -->
                             <button class="toolbar-btn" data-command="justifyLeft" title="Align Left"><i class="fas fa-align-left"></i></button>
                             <button class="toolbar-btn" data-command="justifyCenter" title="Align Center"><i class="fas fa-align-center"></i></button>
                             <button class="toolbar-btn" data-command="justifyRight" title="Align Right"><i class="fas fa-align-right"></i></button>
+                            <button class="toolbar-btn" data-command="justifyFull" title="Justify"><i class="fas fa-align-justify"></i></button>
+                            
                             <div class="toolbar-separator"></div>
+
+                            <!-- Lists -->
+                            <button class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List"><i class="fas fa-list-ul"></i></button>
+                            <button class="toolbar-btn" data-command="insertOrderedList" title="Numbered List"><i class="fas fa-list-ol"></i></button>
+                            
+                            <div class="toolbar-separator"></div>
+
+                            <!-- Indentation -->
+                            <button class="toolbar-btn" data-command="indent" title="Increase Indent"><i class="fas fa-indent"></i></button>
+                            <button class="toolbar-btn" data-command="outdent" title="Decrease Indent"><i class="fas fa-outdent"></i></button>
+                            
+                            <div class="toolbar-separator"></div>
+
+                            <!-- Text Color & Highlight -->
                             <input type="color" class="color-picker" data-command="foreColor" value="#000000" title="Text Color">
                             <input type="color" class="color-picker" data-command="hiliteColor" value="#ffffff" title="Highlight Color">
+                            
                             <div class="toolbar-separator"></div>
+
+                            <!-- Special Formatting -->
+                            <button class="toolbar-btn" data-command="formatBlock" data-value="h1" title="Heading 1"><i class="fas fa-heading"></i>1</button>
+                            <button class="toolbar-btn" data-command="formatBlock" data-value="h2" title="Heading 2"><i class="fas fa-heading"></i>2</button>
+                            <button class="toolbar-btn" data-command="formatBlock" data-value="p" title="Paragraph"><i class="fas fa-paragraph"></i></button>
+                            <button class="toolbar-btn" data-command="formatBlock" data-value="blockquote" title="Blockquote"><i class="fas fa-quote-right"></i></button>
+                            
+                            <div class="toolbar-separator"></div>
+
+                            <!-- Insert Elements -->
+                            <div class="toolbar-dropdown">
+                                <button class="toolbar-dropdown-btn">
+                                    <i class="fas fa-plus"></i>
+                                    <span>Insert</span>
+                                    <i class="fas fa-caret-down"></i>
+                                </button>
+                                <div class="toolbar-dropdown-content">
+                                    <div class="toolbar-dropdown-item" data-command="insertHTML" data-value="<table border='1'><tr><td>Cell 1</td><td>Cell 2</td></tr><tr><td>Cell 3</td><td>Cell 4</td></tr></table>">Table</div>
+                                    <div class="toolbar-dropdown-item" data-command="insertHTML" data-value="<hr>">Horizontal Line</div>
+                                    <div class="toolbar-dropdown-item" data-command="insertHTML" data-value="<pre>Code block</pre>">Code Block</div>
+                                    <div class="toolbar-dropdown-item" data-command="insertHTML" data-value="<code>Inline code</code>">Inline Code</div>
+                                </div>
+                            </div>
+
+                            <!-- Emoji Picker -->
+                            <div class="toolbar-btn emoji-btn">
+                                <i class="far fa-smile" title="Insert Emoji"></i>
+                                <div class="emoji-picker" id="emoji-picker"></div>
+                            </div>
+
+                            <div class="toolbar-separator"></div>
+
+                            <!-- Clear Formatting -->
                             <button class="toolbar-btn" data-command="removeFormat" title="Clear Formatting"><i class="fas fa-eraser"></i></button>
+                            <button class="toolbar-btn" data-command="undo" title="Undo (Ctrl+Z)"><i class="fas fa-undo"></i></button>
+                            <button class="toolbar-btn" data-command="redo" title="Redo (Ctrl+Y)"><i class="fas fa-redo"></i></button>
                         </div>
                         <div id="report-editor" class="form-control editor-container" contenteditable="true" placeholder="Enter your report content here"></div>
                     </div>
@@ -848,6 +1105,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const closeModalButtons = document.querySelectorAll('.close-modal');
     const notification = document.getElementById('notification');
     const editorToolbar = document.getElementById('editor-toolbar');
+    const emojiPicker = document.getElementById('emoji-picker');
     
     // Report details modal elements
     const reportDetailsTitle = document.getElementById('report-details-title');
@@ -877,16 +1135,42 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Initialize rich text editor
         initRichTextEditor();
+        
+        // Initialize emoji picker
+        initEmojiPicker();
     }
     
     function initRichTextEditor() {
         // Set up toolbar buttons
         editorToolbar.addEventListener('click', function(e) {
             const btn = e.target.closest('.toolbar-btn');
+            const dropdownItem = e.target.closest('.toolbar-dropdown-item');
+            
             if (btn) {
                 e.preventDefault();
                 const command = btn.dataset.command;
-                document.execCommand(command, false, null);
+                const value = btn.dataset.value;
+                
+                if (value) {
+                    document.execCommand(command, false, value);
+                } else {
+                    document.execCommand(command, false, null);
+                }
+                
+                updateToolbarButtons();
+            }
+            
+            if (dropdownItem) {
+                e.preventDefault();
+                const command = dropdownItem.dataset.command;
+                const value = dropdownItem.dataset.value;
+                
+                if (command === 'insertHTML') {
+                    document.execCommand(command, false, value);
+                } else {
+                    document.execCommand(command, false, value);
+                }
+                
                 updateToolbarButtons();
             }
         });
@@ -924,11 +1208,87 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.execCommand('underline', false, null);
                 updateToolbarButtons();
             }
+            // Undo - Ctrl+Z
+            if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                document.execCommand('undo', false, null);
+                updateToolbarButtons();
+            }
+            // Redo - Ctrl+Y or Ctrl+Shift+Z
+            if ((e.ctrlKey && e.key === 'y') || (e.ctrlKey && e.shiftKey && e.key === 'z')) {
+                e.preventDefault();
+                document.execCommand('redo', false, null);
+                updateToolbarButtons();
+            }
+        });
+        
+        // Set default font family and size
+        document.execCommand('fontName', false, 'Inter');
+        document.execCommand('fontSize', false, '3');
+    }
+    
+    function initEmojiPicker() {
+        // A sample list of emojis - in a real app you might want a more comprehensive list
+        const emojis = [
+            '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇',
+            '🙂', '🙃', '😉', '😌', '😍', '🥰', '😘', '😗', '😙', '😚',
+            '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🥸',
+            '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️',
+            '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡',
+            '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓',
+            '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄',
+            '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵',
+            '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠',
+            '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽',
+            '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀',
+            '😿', '😾'
+        ];
+        
+        // Populate the emoji picker
+        emojis.forEach(emoji => {
+            const emojiItem = document.createElement('span');
+            emojiItem.className = 'emoji-item';
+            emojiItem.textContent = emoji;
+            emojiItem.addEventListener('click', () => {
+                insertEmoji(emoji);
+                emojiPicker.classList.remove('active');
+            });
+            emojiPicker.appendChild(emojiItem);
+        });
+        
+        // Toggle emoji picker
+        const emojiBtn = document.querySelector('.emoji-btn');
+        emojiBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            emojiPicker.classList.toggle('active');
+        });
+        
+        // Close emoji picker when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!emojiBtn.contains(e.target) && !emojiPicker.contains(e.target)) {
+                emojiPicker.classList.remove('active');
+            }
         });
     }
     
+    function insertEmoji(emoji) {
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            range.deleteContents();
+            const textNode = document.createTextNode(emoji);
+            range.insertNode(textNode);
+            range.setStartAfter(textNode);
+            range.setEndAfter(textNode);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+        reportEditor.focus();
+    }
+    
     function updateToolbarButtons() {
-        const commands = ['bold', 'italic', 'underline', 'justifyLeft', 'justifyCenter', 'justifyRight'];
+        const commands = ['bold', 'italic', 'underline', 'strikeThrough', 
+                         'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'];
         
         commands.forEach(command => {
             const btn = editorToolbar.querySelector(`[data-command="${command}"]`);
@@ -936,6 +1296,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 const isActive = document.queryCommandState(command);
                 btn.classList.toggle('active', isActive);
             }
+        });
+        
+        // Update font name button
+        const fontName = document.queryCommandValue('fontName');
+        const fontNameBtn = editorToolbar.querySelector('.toolbar-dropdown-btn i.fa-font').parentNode;
+        if (fontName && fontNameBtn) {
+            fontNameBtn.querySelector('span').textContent = fontName.length > 10 ? fontName.substring(0, 8) + '...' : fontName;
+        }
+        
+        // Update font size button
+        const fontSize = document.queryCommandValue('fontSize');
+        const fontSizeBtn = editorToolbar.querySelector('.toolbar-dropdown-btn i.fa-text-height').parentNode;
+        if (fontSize && fontSizeBtn) {
+            const sizes = {
+                '1': 'Small',
+                '2': 'Normal',
+                '3': 'Medium',
+                '4': 'Large',
+                '5': 'XL',
+                '6': 'XXL'
+            };
+            fontSizeBtn.querySelector('span').textContent = sizes[fontSize] || 'Size';
+        }
+        
+        // Update format block button
+        const formatBlock = document.queryCommandValue('formatBlock');
+        const formatBlockBtns = editorToolbar.querySelectorAll('[data-command="formatBlock"]');
+        formatBlockBtns.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.value === formatBlock);
         });
     }
     
@@ -979,7 +1368,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Editor placeholder
         reportEditor.addEventListener('focus', function() {
-            if (this.innerHTML === 'Write your report here...') {
+            if (this.innerHTML === 'Write your report here...' || this.innerHTML === '<br>') {
                 this.innerHTML = '';
             }
         });
@@ -988,6 +1377,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (this.innerHTML === '' || this.innerHTML === '<br>') {
                 this.innerHTML = 'Write your report here...';
             }
+        });
+        
+        // Handle paste events to clean up content
+        reportEditor.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+            document.execCommand('insertText', false, text);
         });
     }
     

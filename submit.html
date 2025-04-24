@@ -6,6 +6,7 @@
     <title>Report Viewer | RCDNET</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --primary-color: #4f46e5;
@@ -440,6 +441,121 @@
             margin-bottom: 1.5rem;
         }
 
+        /* Receipt-like report styles */
+        .report-receipt {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .receipt-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+        }
+
+        .receipt-org-info {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .receipt-logo {
+            height: 60px;
+            margin-bottom: 10px;
+        }
+
+        .receipt-title {
+            text-align: right;
+            min-width: 250px;
+        }
+
+        .receipt-title h3 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .receipt-title p {
+            margin: 3px 0;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .receipt-body {
+            padding: 20px;
+        }
+
+        .receipt-row {
+            display: flex;
+            margin-bottom: 8px;
+        }
+
+        .receipt-label {
+            font-weight: 600;
+            color: #555;
+            min-width: 150px;
+        }
+
+        .receipt-value {
+            flex: 1;
+        }
+
+        .receipt-message {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            line-height: 1.6;
+        }
+
+        .receipt-message p {
+            margin-bottom: 10px;
+        }
+
+        .receipt-contact-info {
+            margin-top: 15px;
+            font-size: 0.9rem;
+        }
+
+        .receipt-contact-info p {
+            margin: 5px 0;
+        }
+
+        .receipt-footer {
+            margin-top: 30px;
+            text-align: center;
+            font-style: italic;
+            color: #555;
+        }
+
+        .receipt-signature {
+            margin-top: 50px;
+            text-align: right;
+        }
+
+        .receipt-signature p:first-child {
+            margin-bottom: 5px;
+        }
+
+        .receipt-signature p:last-child {
+            font-size: 0.9rem;
+        }
+
+        .receipt-actions {
+            padding: 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             .header {
                 padding: 1rem;
@@ -475,6 +591,24 @@
                 gap: 1rem;
                 margin-bottom: 1.5rem;
             }
+            
+            /* Receipt responsive adjustments */
+            .receipt-header {
+                flex-direction: column;
+            }
+            
+            .receipt-title {
+                text-align: left;
+                margin-top: 15px;
+            }
+            
+            .receipt-row {
+                flex-direction: column;
+            }
+            
+            .receipt-label {
+                margin-bottom: 3px;
+            }
         }
 
         @media (max-width: 576px) {
@@ -492,7 +626,6 @@
 <body>
     <header class="header">
         <div class="logo-container">
-            <!-- Replace with actual logo -->
             <img src="logo.png" height="70" width="70" alt="RCDNET Logo" class="logo">
             <span class="logo-text">RCDNET</span>
         </div>
@@ -505,7 +638,11 @@
         <div class="dashboard-container">
             <div class="dashboard-header">
                 <h1 class="dashboard-title">Submitted Reports</h1>
-               
+                <div class="dashboard-actions">
+                    <button class="btn btn-primary" id="new-report-btn">
+                        <i class="fas fa-plus"></i> New Report
+                    </button>
+                </div>
             </div>
             
             <div class="search-filter">
@@ -530,7 +667,6 @@
                     </tr>
                 </thead>
                 <tbody id="reports-body">
-                    <!-- Reports will be populated by JavaScript -->
                     <tr>
                         <td colspan="6" class="empty-state">
                             <div>
@@ -572,8 +708,69 @@
                     </div>
                 </div>
                 
-                <div class="report-content" id="report-content">
-                    <p>Loading report content...</p>
+                <div class="report-receipt" id="report-receipt">
+                    <div class="receipt-header">
+                        <div class="receipt-org-info">
+                            <img src="logo.png" alt="RCDNET Logo" class="receipt-logo">
+                            <h2>RWENZORI COMMUNITY DEVELOPMENT NETWORK (RCDNET)</h2>
+                        </div>
+                        <div class="receipt-title">
+                            <h3>OFFICIAL REPORT</h3>
+                            <p>Report issued at RCDNET</p>
+                            <p>P.O.Box 558, Kasese, Western Uganda</p>
+                            <p>Tax ID No. 1027222682</p>
+                            <p>Registration No: 808593</p>
+                            <p>Community Registration No. CE/CBS/008</p>
+                        </div>
+                    </div>
+                    
+                    <div class="receipt-body">
+                        <div class="receipt-row">
+                            <span class="receipt-label">Report Title:</span>
+                            <span class="receipt-value" id="receipt-report-title">Loading...</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-label">Submitted By:</span>
+                            <span class="receipt-value" id="receipt-report-author">Loading...</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-label">Activity:</span>
+                            <span class="receipt-value" id="receipt-report-activity">Loading...</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-label">Date:</span>
+                            <span class="receipt-value" id="receipt-report-date">Loading...</span>
+                        </div>
+                        <div class="receipt-row">
+                            <span class="receipt-label">Status:</span>
+                            <span class="receipt-value" id="receipt-report-status">Loading...</span>
+                        </div>
+                        
+                        <div class="receipt-message">
+                            <h4>Report Content:</h4>
+                            <div id="receipt-report-content">
+                                <p>Loading report content...</p>
+                            </div>
+                        </div>
+                        
+                        <div class="receipt-contact-info">
+                            <p>For enquiries call +256 704240309 or email to info@rwenzori-development.org</p>
+                            <p>Website: www.rwenzori-development.org</p>
+                            <p>YouTube: https://youtube.com/@rwenzoricommunitydevelopme7810?si=zYLqI2Iajh0iQuAq</p>
+                            <p>Instagram: https://www.instagram.com/rwenzoridevelopment_rcdnet</p>
+                            <p>Facebook: https://www.facebook.com/profile.php?id=100066779636297</p>
+                        </div>
+                    </div>
+                    
+                    <div class="receipt-footer">
+                        <p>This report serves as official documentation of activities at RCDNET.</p>
+                    </div>
+                    
+                    <div class="receipt-signature">
+                        <p>_________________________</p>
+                        <p>Ndyakurungi Mugisha</p>
+                        <p>Chief Executive Director</p>
+                    </div>
                 </div>
                 
                 <div class="attachments">
@@ -607,6 +804,7 @@
             const closeModalButtons = document.querySelectorAll('.close-modal');
             const searchInput = document.getElementById('search-input');
             const statusFilter = document.getElementById('status-filter');
+            const newReportBtn = document.getElementById('new-report-btn');
             
             // Report modal elements
             const reportTitle = document.getElementById('report-title');
@@ -614,9 +812,16 @@
             const reportDate = document.getElementById('report-date');
             const reportActivity = document.getElementById('report-activity');
             const reportStatus = document.getElementById('report-status');
-            const reportContent = document.getElementById('report-content');
+            const reportContent = document.getElementById('receipt-report-content');
             const attachmentsList = document.getElementById('attachments-list');
             const downloadBtn = document.getElementById('download-report');
+            
+            // Receipt elements
+            const receiptReportTitle = document.getElementById('receipt-report-title');
+            const receiptReportAuthor = document.getElementById('receipt-report-author');
+            const receiptReportActivity = document.getElementById('receipt-report-activity');
+            const receiptReportDate = document.getElementById('receipt-report-date');
+            const receiptReportStatus = document.getElementById('receipt-report-status');
             
             // Initialize the app
             loadReports();
@@ -630,6 +835,9 @@
             
             searchInput.addEventListener('input', filterReports);
             statusFilter.addEventListener('change', filterReports);
+            newReportBtn.addEventListener('click', () => {
+                window.location.href = 'submit.html';
+            });
             
             // Close modal when clicking outside
             reportModal.addEventListener('click', (e) => {
@@ -713,13 +921,17 @@
                                 <i class="fas fa-file-alt empty-icon"></i>
                                 <h3 class="empty-title">No Reports Found</h3>
                                 <p class="empty-description">There are no reports to display at this time.</p>
-                                <button class="btn btn-primary">
+                                <button class="btn btn-primary" id="create-report-btn">
                                     <i class="fas fa-plus"></i> Create New Report
                                 </button>
                             </div>
                         </td>
                     </tr>
                 `;
+                
+                document.getElementById('create-report-btn').addEventListener('click', () => {
+                    window.location.href = 'submit.html';
+                });
             }
             
             function displayErrorState() {
@@ -753,6 +965,13 @@
                     reportStatus.textContent = report.status || 'submitted';
                     reportStatus.className = `status ${report.status || 'submitted'}`;
                     reportContent.innerHTML = report.content ? report.content.replace(/\n/g, '<br>') : '<em>No content provided</em>';
+                    
+                    // Populate receipt elements
+                    receiptReportTitle.textContent = report.title || 'Untitled Report';
+                    receiptReportAuthor.textContent = report.submitted_by_name || 'Unknown';
+                    receiptReportActivity.textContent = report.activity_name || 'N/A';
+                    receiptReportDate.textContent = formatDate(report.created_at);
+                    receiptReportStatus.textContent = report.status || 'submitted';
                     
                     // Load attachments
                     await loadAttachments(reportId);
@@ -829,85 +1048,36 @@
             }
             
             function downloadReport(report) {
-                // Create a blob with the report content
-                const blob = new Blob([`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>${report.title || 'Untitled Report'} | RCDNET</title>
-                        <style>
-                            body { font-family: Arial, sans-serif; line-height: 1.6; padding: 2rem; max-width: 900px; margin: 0 auto; }
-                            h1 { color: #111827; margin-bottom: 1.5rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; }
-                            .meta { margin-bottom: 2rem; color: #6b7280; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
-                            .meta-item { display: flex; gap: 0.5rem; align-items: center; }
-                            .content { margin: 2rem 0; white-space: pre-line; }
-                            .attachments { margin-top: 3rem; }
-                            .attachment-item { margin-bottom: 0.75rem; display: flex; gap: 0.5rem; align-items: center; }
-                            .logo { text-align: center; margin-bottom: 2rem; }
-                            .logo img { height: 60px; }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="logo">
-                            <img src="https://via.placeholder.com/150x60?text=RCDNET" alt="RCDNET Logo">
-                        </div>
-                        
-                        <h1>${report.title || 'Untitled Report'}</h1>
-                        
-                        <div class="meta">
-                            <div class="meta-item">
-                                <strong>Submitted by:</strong> ${report.submitted_by_name || 'Unknown'}
-                            </div>
-                            <div class="meta-item">
-                                <strong>Date:</strong> ${formatDate(report.created_at)}
-                            </div>
-                            <div class="meta-item">
-                                <strong>Activity:</strong> ${report.activity_name || 'N/A'}
-                            </div>
-                            <div class="meta-item">
-                                <strong>Status:</strong> ${report.status || 'submitted'}
-                            </div>
-                        </div>
-                        
-                        <div class="content">
-                            ${report.content || 'No content provided'}
-                        </div>
-                        
-                        <div class="attachments">
-                            <h2>Attachments</h2>
-                            ${getAttachmentsListForDownload(report.id)}
-                        </div>
-                    </body>
-                    </html>
-                `], { type: 'text/html' });
+                // Create a clone of the receipt element to avoid modifying the original
+                const receiptElement = document.getElementById('report-receipt');
+                const receiptClone = receiptElement.cloneNode(true);
                 
-                // Create download link
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${(report.title || 'report').replace(/[^a-z0-9]/gi, '_').toLowerCase()}_rcdnet_report.html`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }
-            
-            function getAttachmentsListForDownload(reportId) {
-                const report = reports.find(r => r.id == reportId);
-                if (!report || !report.attachments || report.attachments.length === 0) {
-                    return '<p>No attachments available for this report.</p>';
-                }
+                // Remove the action buttons from the clone
+                const actions = receiptClone.querySelector('.receipt-actions');
+                if (actions) actions.remove();
                 
-                return report.attachments.map(attachment => {
-                    return `<div class="attachment-item">
-                        <i class="fas fa-paperclip"></i>
-                        <a href="${API_BASE_URL}/reports/${reportId}/attachments/${attachment.id}/download" 
-                           download="${attachment.original_filename}">
-                            ${attachment.original_filename || 'Unnamed File'}
-                        </a>
-                        <span>(${formatFileSize(attachment.file_size || 0)})</span>
-                    </div>`;
-                }).join('');
+                // Options for PDF generation
+                const opt = {
+                    margin: [10, 10, 10, 10], // [top, left, bottom, right]
+                    filename: `RCDNET_Report_${report.title || 'Untitled'}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { 
+                        scale: 2, // Increase scale for better quality
+                        logging: true,
+                        useCORS: true,
+                        scrollY: 0, // Important to start from top
+                        windowHeight: receiptClone.scrollHeight // Set window height to content height
+                    },
+                    jsPDF: { 
+                        unit: 'mm', 
+                        format: 'a4', 
+                        orientation: 'portrait',
+                        hotfixes: ["px_scaling"] 
+                    }
+                };
+
+                // Generate PDF
+                html2pdf().set(opt).from(receiptClone).save();
             }
             
             function filterReports() {

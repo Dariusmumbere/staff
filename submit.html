@@ -246,7 +246,17 @@
             transform: translateY(-1px);
         }
 
-        .view-details {
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-1px);
+        }
+
+        .action-btn {
             color: var(--primary-color);
             text-decoration: none;
             font-weight: 500;
@@ -255,11 +265,28 @@
             align-items: center;
             gap: 0.25rem;
             transition: all 0.2s;
+            background: none;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--radius-md);
         }
 
-        .view-details:hover {
-            color: var(--primary-hover);
+        .action-btn:hover {
+            background-color: rgba(79, 70, 229, 0.1);
             transform: translateY(-1px);
+        }
+
+        .action-btn.delete {
+            color: var(--danger-color);
+        }
+
+        .action-btn.delete:hover {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+
+        .action-btn-group {
+            display: flex;
+            gap: 0.5rem;
         }
 
         .modal {
@@ -441,118 +468,21 @@
             margin-bottom: 1.5rem;
         }
 
-        /* Receipt-like report styles */
-        .report-receipt {
-            border: 1px solid #eee;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            background-color: white;
-            max-width: 800px;
-            margin: 0 auto;
+        /* Confirmation modal styles */
+        .confirmation-modal .modal-content {
+            max-width: 500px;
         }
 
-        .receipt-header {
-            display: flex;
-            justify-content: space-between;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-bottom: 1px solid #eee;
-            flex-wrap: wrap;
-        }
-
-        .receipt-org-info {
-            flex: 1;
-            min-width: 300px;
-        }
-
-        .receipt-logo {
-            height: 60px;
-            margin-bottom: 10px;
-        }
-
-        .receipt-title {
-            text-align: right;
-            min-width: 250px;
-        }
-
-        .receipt-title h3 {
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-
-        .receipt-title p {
-            margin: 3px 0;
-            font-size: 0.9rem;
-            color: #555;
-        }
-
-        .receipt-body {
-            padding: 20px;
-        }
-
-        .receipt-row {
-            display: flex;
-            margin-bottom: 8px;
-        }
-
-        .receipt-label {
-            font-weight: 600;
-            color: #555;
-            min-width: 150px;
-        }
-
-        .receipt-value {
-            flex: 1;
-        }
-
-        .receipt-message {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            line-height: 1.6;
-        }
-
-        .receipt-message p {
-            margin-bottom: 10px;
-        }
-
-        .receipt-contact-info {
-            margin-top: 15px;
-            font-size: 0.9rem;
-        }
-
-        .receipt-contact-info p {
-            margin: 5px 0;
-        }
-
-        .receipt-footer {
-            margin-top: 30px;
+        .confirmation-message {
+            padding: 1.5rem 2rem;
             text-align: center;
-            font-style: italic;
-            color: #555;
         }
 
-        .receipt-signature {
-            margin-top: 50px;
-            text-align: right;
-        }
-
-        .receipt-signature p:first-child {
-            margin-bottom: 5px;
-        }
-
-        .receipt-signature p:last-child {
-            font-size: 0.9rem;
-        }
-
-        .receipt-actions {
-            padding: 15px;
-            border-top: 1px solid #eee;
+        .confirmation-buttons {
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem 2rem 2rem;
         }
 
         /* Responsive adjustments */
@@ -592,22 +522,9 @@
                 margin-bottom: 1.5rem;
             }
             
-            /* Receipt responsive adjustments */
-            .receipt-header {
+            .action-btn-group {
                 flex-direction: column;
-            }
-            
-            .receipt-title {
-                text-align: left;
-                margin-top: 15px;
-            }
-            
-            .receipt-row {
-                flex-direction: column;
-            }
-            
-            .receipt-label {
-                margin-bottom: 3px;
+                align-items: flex-start;
             }
         }
 
@@ -639,8 +556,11 @@
             <div class="dashboard-header">
                 <h1 class="dashboard-title">Submitted Reports</h1>
                 <div class="dashboard-actions">
+                    <button class="btn btn-primary" id="refresh-reports-btn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
                     <button class="btn btn-primary" id="new-report-btn">
-                        <i class="fas fa-sync-alt"></i> Refresh Reports
+                        <i class="fas fa-plus"></i> New Report
                     </button>
                 </div>
             </div>
@@ -708,64 +628,8 @@
                     </div>
                 </div>
                 
-                <div class="report-receipt" id="report-receipt">
-                    <div class="receipt-header">
-                        <div class="receipt-org-info">
-                            <img src="logo.png" alt="RCDNET Logo" class="receipt-logo">
-                            <h2>RWENZORI COMMUNITY DEVELOPMENT NETWORK (RCDNET)</h2>
-                        </div>
-                        <div class="receipt-title">
-                            <h3>OFFICIAL REPORT</h3>
-                            <p>Report issued at RCDNET</p>
-                            <p>P.O.Box 558, Kasese, Western Uganda</p>
-                            <p>Tax ID No. 1027222682</p>
-                            <p>Registration No: 808593</p>
-                            <p>Community Registration No. CE/CBS/008</p>
-                        </div>
-                    </div>
-                    
-                    <div class="receipt-body">
-                        <div class="receipt-row">
-                            <span class="receipt-label">Report Title:</span>
-                            <span class="receipt-value" id="receipt-report-title">Loading...</span>
-                        </div>
-                        <div class="receipt-row">
-                            <span class="receipt-label">Submitted By:</span>
-                            <span class="receipt-value" id="receipt-report-author">Loading...</span>
-                        </div>
-                        <div class="receipt-row">
-                            <span class="receipt-label">Activity:</span>
-                            <span class="receipt-value" id="receipt-report-activity">Loading...</span>
-                        </div>
-                        <div class="receipt-row">
-                            <span class="receipt-label">Date:</span>
-                            <span class="receipt-value" id="receipt-report-date">Loading...</span>
-                        </div>
-                        <div class="receipt-row">
-                            <span class="receipt-label">Status:</span>
-                            <span class="receipt-value" id="receipt-report-status">Loading...</span>
-                        </div>
-                        
-                        <div class="receipt-message">
-                            <h4>Report Content:</h4>
-                            <div id="receipt-report-content">
-                                <p>Loading report content...</p>
-                            </div>
-                        </div>
-                        
-                        <div class="receipt-contact-info">
-                            <p>For enquiries call +256 704240309 or email to info@rwenzori-development.org</p>
-                            <p>Website: www.rwenzori-development.org</p>
-                            <p>YouTube: https://youtube.com/@rwenzoricommunitydevelopme7810?si=zYLqI2Iajh0iQuAq</p>
-                            <p>Instagram: https://www.instagram.com/rwenzoridevelopment_rcdnet</p>
-                            <p>Facebook: https://www.facebook.com/profile.php?id=100066779636297</p>
-                        </div>
-                    </div>
-                    
-                    <div class="receipt-footer">
-                        <p>This report serves as official documentation of activities at RCDNET.</p>
-                    </div>
-                    
+                <div class="report-content" id="report-content">
+                    Loading report content...
                 </div>
                 
                 <div class="attachments">
@@ -787,6 +651,27 @@
         </div>
     </div>
 
+    <!-- Confirmation Modal -->
+    <div class="modal confirmation-modal" id="confirmation-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirm Deletion</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <div class="confirmation-message">
+                <p>Are you sure you want to delete this report? This action cannot be undone.</p>
+            </div>
+            <div class="confirmation-buttons">
+                <button class="btn btn-secondary" id="cancel-delete">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                <button class="btn btn-danger" id="confirm-delete">
+                    <i class="fas fa-trash"></i> Delete Report
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const API_BASE_URL = 'https://man-m681.onrender.com';
@@ -796,10 +681,14 @@
             // DOM Elements
             const reportsBody = document.getElementById('reports-body');
             const reportModal = document.getElementById('report-modal');
+            const confirmationModal = document.getElementById('confirmation-modal');
             const closeModalButtons = document.querySelectorAll('.close-modal');
             const searchInput = document.getElementById('search-input');
             const statusFilter = document.getElementById('status-filter');
             const newReportBtn = document.getElementById('new-report-btn');
+            const refreshBtn = document.getElementById('refresh-reports-btn');
+            const cancelDeleteBtn = document.getElementById('cancel-delete');
+            const confirmDeleteBtn = document.getElementById('confirm-delete');
             
             // Report modal elements
             const reportTitle = document.getElementById('report-title');
@@ -807,16 +696,9 @@
             const reportDate = document.getElementById('report-date');
             const reportActivity = document.getElementById('report-activity');
             const reportStatus = document.getElementById('report-status');
-            const reportContent = document.getElementById('receipt-report-content');
+            const reportContent = document.getElementById('report-content');
             const attachmentsList = document.getElementById('attachments-list');
             const downloadBtn = document.getElementById('download-report');
-            
-            // Receipt elements
-            const receiptReportTitle = document.getElementById('receipt-report-title');
-            const receiptReportAuthor = document.getElementById('receipt-report-author');
-            const receiptReportActivity = document.getElementById('receipt-report-activity');
-            const receiptReportDate = document.getElementById('receipt-report-date');
-            const receiptReportStatus = document.getElementById('receipt-report-status');
             
             // Initialize the app
             loadReports();
@@ -825,6 +707,7 @@
             closeModalButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     reportModal.classList.remove('active');
+                    confirmationModal.classList.remove('active');
                 });
             });
             
@@ -834,11 +717,21 @@
                 window.location.href = 'submit.html';
             });
             
+            refreshBtn.addEventListener('click', loadReports);
+            
+            cancelDeleteBtn.addEventListener('click', () => {
+                confirmationModal.classList.remove('active');
+            });
+            
+            confirmDeleteBtn.addEventListener('click', deleteReport);
+            
             // Close modal when clicking outside
-            reportModal.addEventListener('click', (e) => {
-                if (e.target === reportModal) {
-                    reportModal.classList.remove('active');
-                }
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
             });
             
             async function loadReports() {
@@ -890,9 +783,14 @@
                         <td>${formatDate(report.created_at)}</td>
                         <td><span class="status ${report.status || 'submitted'}">${report.status || 'submitted'}</span></td>
                         <td>
-                            <span class="view-details" data-report-id="${report.id}">
-                                <i class="fas fa-eye"></i> View
-                            </span>
+                            <div class="action-btn-group">
+                                <button class="action-btn view-details" data-report-id="${report.id}">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button class="action-btn delete" data-report-id="${report.id}">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
                         </td>
                     `;
                     
@@ -906,6 +804,50 @@
                         showReportDetails(reportId);
                     });
                 });
+                
+                // Add click event to delete buttons
+                document.querySelectorAll('.action-btn.delete').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const reportId = e.currentTarget.getAttribute('data-report-id');
+                        showDeleteConfirmation(reportId);
+                    });
+                });
+            }
+            
+            function showDeleteConfirmation(reportId) {
+                currentReportId = reportId;
+                confirmationModal.classList.add('active');
+            }
+            
+            async function deleteReport() {
+                if (!currentReportId) return;
+                
+                try {
+                    const response = await fetch(`${API_BASE_URL}/reports/${currentReportId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to delete report');
+                    }
+                    
+                    // Remove the report from the local array
+                    reports = reports.filter(report => report.id != currentReportId);
+                    
+                    // Refresh the display
+                    displayReports(reports);
+                    
+                    // Close the modal
+                    confirmationModal.classList.remove('active');
+                    
+                    // Show success message
+                    alert('Report deleted successfully');
+                    
+                } catch (error) {
+                    console.error('Error deleting report:', error);
+                    alert('Failed to delete report. Please try again.');
+                }
             }
             
             function displayEmptyState() {
@@ -961,20 +903,8 @@
                     reportStatus.className = `status ${report.status || 'submitted'}`;
                     reportContent.innerHTML = report.content ? report.content.replace(/\n/g, '<br>') : '<em>No content provided</em>';
                     
-                    // Populate receipt elements
-                    receiptReportTitle.textContent = report.title || 'Untitled Report';
-                    receiptReportAuthor.textContent = report.submitted_by_name || 'Unknown';
-                    receiptReportActivity.textContent = report.activity_name || 'N/A';
-                    receiptReportDate.textContent = formatDate(report.created_at);
-                    receiptReportStatus.textContent = report.status || 'submitted';
-                    
                     // Load attachments
                     await loadAttachments(reportId);
-                    
-                    // Set up download button
-                    downloadBtn.onclick = () => {
-                        downloadReport(report);
-                    };
                     
                     // Show the modal
                     reportModal.classList.add('active');
@@ -1042,39 +972,6 @@
                 }
             }
             
-            function downloadReport(report) {
-                // Create a clone of the receipt element to avoid modifying the original
-                const receiptElement = document.getElementById('report-receipt');
-                const receiptClone = receiptElement.cloneNode(true);
-                
-                // Remove the action buttons from the clone
-                const actions = receiptClone.querySelector('.receipt-actions');
-                if (actions) actions.remove();
-                
-                // Options for PDF generation
-                const opt = {
-                    margin: [10, 10, 10, 10], // [top, left, bottom, right]
-                    filename: `RCDNET_Report_${report.title || 'Untitled'}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { 
-                        scale: 2, // Increase scale for better quality
-                        logging: true,
-                        useCORS: true,
-                        scrollY: 0, // Important to start from top
-                        windowHeight: receiptClone.scrollHeight // Set window height to content height
-                    },
-                    jsPDF: { 
-                        unit: 'mm', 
-                        format: 'a4', 
-                        orientation: 'portrait',
-                        hotfixes: ["px_scaling"] 
-                    }
-                };
-
-                // Generate PDF
-                html2pdf().set(opt).from(receiptClone).save();
-            }
-            
             function filterReports() {
                 const searchTerm = searchInput.value.toLowerCase();
                 const statusFilterValue = statusFilter.value;
@@ -1113,6 +1010,60 @@
                 const i = Math.floor(Math.log(bytes) / Math.log(k));
                 return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
             }
+            
+            // Set up download button
+            downloadBtn.addEventListener('click', () => {
+                const report = reports.find(r => r.id == currentReportId);
+                if (!report) return;
+                
+                // Create a temporary element for PDF generation
+                const element = document.createElement('div');
+                element.innerHTML = `
+                    <style>
+                        body { font-family: Arial, sans-serif; line-height: 1.6; }
+                        .report-title { font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+                        .report-meta { margin-bottom: 20px; }
+                        .meta-item { margin-bottom: 8px; }
+                        .report-content { margin-top: 20px; }
+                        .attachments { margin-top: 30px; }
+                        .attachment-item { margin-bottom: 10px; }
+                        .status {
+                            display: inline-block;
+                            padding: 3px 8px;
+                            border-radius: 12px;
+                            font-size: 12px;
+                            font-weight: bold;
+                        }
+                        .status.submitted { background-color: #dbeafe; color: #1e40af; }
+                        .status.approved { background-color: #dcfce7; color: #166534; }
+                        .status.rejected { background-color: #fee2e2; color: #991b1b; }
+                    </style>
+                    <div class="report-pdf">
+                        <div class="report-title">${report.title || 'Untitled Report'}</div>
+                        <div class="report-meta">
+                            <div class="meta-item"><strong>Submitted By:</strong> ${report.submitted_by_name || 'Unknown'}</div>
+                            <div class="meta-item"><strong>Date:</strong> ${formatDate(report.created_at)}</div>
+                            <div class="meta-item"><strong>Activity:</strong> ${report.activity_name || 'N/A'}</div>
+                            <div class="meta-item"><strong>Status:</strong> <span class="status ${report.status || 'submitted'}">${report.status || 'submitted'}</span></div>
+                        </div>
+                        <div class="report-content">
+                            ${report.content ? report.content.replace(/\n/g, '<br>') : '<em>No content provided</em>'}
+                        </div>
+                    </div>
+                `;
+                
+                // Options for PDF generation
+                const opt = {
+                    margin: 10,
+                    filename: `RCDNET_Report_${report.title || 'Untitled'}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                // Generate PDF
+                html2pdf().set(opt).from(element).save();
+            });
         });
     </script>
 </body>
